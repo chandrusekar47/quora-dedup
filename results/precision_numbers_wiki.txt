@@ -1,0 +1,16 @@
+cosine 
+F1 - Score for ROC best threshold: 0.4086
+Precision: 0.3049
+Recall: 0.6189
+euclidean 
+F1 - Score for ROC best threshold: 0.5775
+Precision: 0.5081
+Recall: 0.6689
+minkowski r=3 
+F1 - Score for ROC best threshold: 0.5779
+Precision: 0.5074
+Recall: 0.6711
+WMD score 
+F1 - Score for ROC best threshold: 0.6230
+Precision: 0.5368
+Recall: 0.7423
