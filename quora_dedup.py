@@ -73,7 +73,7 @@ def generate_scores(question_pairs):
 		else:
 			scores.append((question_pair.id,
 					question_pair.is_duplicate,
-					metrics.pairwise.cosine_similarity(v1, v2),
+					((spatial.distance.cosine(v1, v2)-1)*-1),
 					distance_to_similarity(spatial.distance.euclidean(v1, v2)),
 					distance_to_similarity(spatial.distance.minkowski(v1, v2, 3)),
 					distance_to_similarity(wmd_dist)))
