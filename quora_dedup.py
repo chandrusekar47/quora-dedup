@@ -98,7 +98,7 @@ def gen_auc_metrics(true_class, scores, similarity_measure = ''):
 	if DEBUG:
 		predicted_classes = scores >= best_threshold
 		predicted_classes = ['1' if x else '0' for x in predicted_classes]
-		print("%s \nF1 - Score for ROC best threshold: %0.4f\nPrecision: %0.4f\nRecall: %0.4f"%(similarity_measure, f1_score(true_class, predicted_classes, pos_label='1'), precision_score(true_class, predicted_classes, pos_label='1'), recall_score(true_class, predicted_classes, pos_label='1')))
+		print("%s \nF1 - Score for ROC best threshold: %0.4f\nPrecision: %0.4f\nRecall: %0.4f\nAccuracy: %0.4f"%(similarity_measure, f1_score(true_class, predicted_classes, pos_label='1'), precision_score(true_class, predicted_classes, pos_label='1'), recall_score(true_class, predicted_classes, pos_label='1'),accuracy_score(true_class, predicted_classes)))
 	return best_threshold
 
 def print_scores(scores):
