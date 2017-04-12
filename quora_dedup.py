@@ -9,7 +9,7 @@ from sklearn.metrics import *
 import nltk
 from nltk.corpus import stopwords
 import time
-
+#YOLOYL
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
 
