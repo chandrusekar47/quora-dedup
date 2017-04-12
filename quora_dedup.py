@@ -93,7 +93,7 @@ def print_scores(scores):
 		print("%s,%s,%0.4f,%0.4f,%0.4f"%(score[0],score[1],score[2],score[3],score[4]))
 
 def main():
-	question_pairs = read_file("train_sample.csv")
+	question_pairs = read_file("data/train_sample.csv")
 	scores=generate_scores(question_pairs)
 	print_scores(scores)
 	true_classes = [ x.is_duplicate for x in question_pairs]
