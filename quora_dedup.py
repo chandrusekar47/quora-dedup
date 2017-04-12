@@ -8,6 +8,7 @@ from sklearn import metrics
 from sklearn.metrics import *
 import nltk
 from nltk.corpus import stopwords
+import time
 
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
@@ -21,7 +22,10 @@ def load_word_vectors(filename):
 def load_model(filename):
 	return KeyedVectors.load(filename)
 
+t0 = time.time()
 Model = load_word_vectors('data/google-vec.bin')
+t1 = time.time()
+print("Loading the model took %f seconds" % ( t1 - t0))
 # Model = load_model('data/wiki_en_1000_no_stem/en.model')
 
 def compute_distance(points, centroid):
@@ -40,15 +44,15 @@ def read_file(input_file):
 			question_pairs.append(question_pair)
 	return question_pairs
 
-def to_words(str):
+def to_words(sent):
 	# remove non alphanumeric characters except period
-	str = re.sub("[^a-zA-Z\d\s.]", " ", str)
+	sent = re.sub("[^a-zA-Z\d\s.]", " ", sent)
 	# remove all periods except the ones in the numbers
-	str = re.sub("([^\d])\.([^\d])",r"\1 \2",str)
-	return [x.lower().strip() for x in str.split(" ") if x.strip() != "" and x not in stopwords.words('english')]
+	sent = re.sub("([^\d])\.([^\d])",r"\1 \2",sent)
+	return [x.lower().strip() for x in sent.split(" ") if x.strip() != "" and x not in stopwords.words('english')]
 
-def vec(str):
-	return [] if str not in Model.vocab else Model[str]
+def vec(word):
+	return [] if word not in Model.vocab else Model[word]
 
 def distance_to_similarity(distance_value):
 	return 1.0/(1+distance_value)
@@ -67,10 +71,10 @@ def generate_scores(question_pairs):
 		if len(v1) == 0 or len(v2) == 0:
 			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
 		else:
-			scores.append((question_pair.id, 
-					question_pair.is_duplicate, 
-					spatial.distance.cosine(v1, v2), 
-					distance_to_similarity(spatial.distance.euclidean(v1, v2)), 
+			scores.append((question_pair.id,
+					question_pair.is_duplicate,
+					metrics.pairwise.cosine_similarity(v1, v2),
+					distance_to_similarity(spatial.distance.euclidean(v1, v2)),
 					distance_to_similarity(spatial.distance.minkowski(v1, v2, 3)),
 					distance_to_similarity(wmd_dist)))
 	return scores
@@ -93,7 +97,12 @@ def print_scores(scores):
 		print("%s,%s,%0.4f,%0.4f,%0.4f"%(score[0],score[1],score[2],score[3],score[4]))
 
 def main():
+
+	t0 = time.time()
 	question_pairs = read_file("data/train_sample.csv")
+	t1 = time.time()
+	print("Loading the training sample took %f seconds" % ( t1 - t0))
+
 	scores=generate_scores(question_pairs)
 	print_scores(scores)
 	true_classes = [ x.is_duplicate for x in question_pairs]
