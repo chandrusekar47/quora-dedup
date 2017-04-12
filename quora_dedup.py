@@ -104,7 +104,7 @@ def main():
 	print("Loading the training sample took %f seconds" % ( t1 - t0))
 
 	scores=generate_scores(question_pairs)
-	print_scores(scores)
+	# print_scores(scores)
 	true_classes = [ x.is_duplicate for x in question_pairs]
 	cosine_scores = [ x[2] for x in scores]
 	euc_scores = [ x[3] for x in scores]
