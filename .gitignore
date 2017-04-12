@@ -1,7 +1,8 @@
 env/
 .ipynb_checkpoints
-data/*.csv
+data/*
 *.bin
 data/wiki_en_1000_no_stem/
 *~
 .DS_Store
+results/*
