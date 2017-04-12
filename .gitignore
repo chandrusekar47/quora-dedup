@@ -3,3 +3,4 @@ env/
 data/*.csv
 *.bin
 data/wiki_en_1000_no_stem/
+*~
