@@ -21,8 +21,8 @@ def load_word_vectors(filename):
 def load_model(filename):
 	return KeyedVectors.load(filename)
 
-# Model = load_word_vectors('/home/chandrasekar/Desktop/GoogleNews-vectors-negative300.bin')
-Model = load_model('/home/chandrasekar/Desktop/en_1000_no_stem/en.model')
+Model = load_word_vectors('data/google-vec.bin')
+# Model = load_model('data/wiki_en_1000_no_stem/en.model')
 
 def compute_distance(points, centroid):
 	return np.sqrt(np.sum((points - centroid)**2, axis=1))
