@@ -8,14 +8,12 @@ from sklearn import metrics
 from sklearn.metrics import *
 import nltk
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 import time
 
 DEBUG = False
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
-
-nltk.download('stopwords')
-QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
 
 def load_model(model_name):
 	if model_name == "wiki":
@@ -24,6 +22,9 @@ def load_model(model_name):
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
 	return None
 
+wordnet_lemmatizer = WordNetLemmatizer()
+nltk.download('stopwords')
+QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
 t0 = time.time()
 Model = load_model("wiki")
 t1 = time.time()
@@ -57,7 +58,7 @@ def to_words(sent):
 	sent = re.sub("([^\d])\.([^\d])",r"\1 \2",sent)
 	words = [x.lower().strip() for x in sent.split(" ") if x.strip() != ""]
 	if REMOVE_STOP_WORDS:
-		words = [x for x in words if x not in stopwords.words('english')]
+		words = [wordnet_lemmatizer.lemmatize(x) for x in words if x not in stopwords.words('english')]
 	return words
 
 def vec(word):
@@ -103,9 +104,9 @@ def gen_auc_metrics(true_class, scores, similarity_measure = ''):
 
 def print_scores(scores):
 	if DEBUG:
-		print("id,is_duplicate,cosine,euclidean,minkowski")
+		print("id,is_duplicate,cosine,euclidean,minkowski,wmd")
 		for score in scores:
-			print("%s,%s,%0.4f,%0.4f,%0.4f"%(score[0],score[1],score[2],score[3],score[4]))
+			print("%s,%s,%0.4f,%0.4f,%0.4f,%0.4f"%(score[0],score[1],score[2],score[3],score[4],score[5]))
 
 def run_on_test_data(test_file_name, best_threshold):
 	question_pairs = read_file(test_file_name, is_training_data = False)
