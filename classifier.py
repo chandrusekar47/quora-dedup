@@ -20,7 +20,7 @@ def fmeasure(y_true, y_pred):
 
 def main():
 	# Generate dummy data
-	data = read_file("combined_scores.csv")
+	data = read_file("data/combined_scores.csv")
 	x_train = data[:, 3:]
 	y_train = data[:, 2]
 	
