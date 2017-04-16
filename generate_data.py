@@ -19,7 +19,6 @@ def print_combined_scores(wiki_scores, google_scores):
 
 if __name__ == '__main__':
 	sampled_questions = quora_dedup.generate_training_sample('data/train_cleaned.csv',10000)
-	print("generated sample questions")
 	wiki_scores = quora_dedup.generate_scores(sampled_questions, quora_dedup.load_model("wiki"))
 	google_scores = quora_dedup.generate_scores(sampled_questions, quora_dedup.load_model("google"))
 	print_combined_scores(wiki_scores, google_scores)
