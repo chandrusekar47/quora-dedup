@@ -13,9 +13,9 @@ import time
 import quora_dedup
 
 def print_combined_scores(wiki_scores, google_scores):
-	print(','.join(["id","is_duplicate","cosine_wiki","euclidean_wiki","minkowski_wiki","wmd_wiki","cosine_google","euclidean_google","minkowski_google","wmd_google"]))
+	print(','.join(["id","is_duplicate","num_common_words","cosine_wiki","euclidean_wiki","minkowski_wiki","wmd_wiki","cosine_google","euclidean_google","minkowski_google","wmd_google"]))
 	for ind, wiki_score in enumerate(wiki_scores):
-		print("{},{},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f}".format(*(wiki_score + google_scores[ind][2:])))
+		print("{},{},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f},{:0.4f}".format(*(wiki_score + google_scores[ind][3:])))
 
 if __name__ == '__main__':
 	sampled_questions = quora_dedup.generate_training_sample('data/train_cleaned.csv',10000)
