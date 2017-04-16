@@ -14,6 +14,8 @@ import time
 DEBUG = False
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
+QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
+wordnet_lemmatizer = WordNetLemmatizer()
 
 def load_model(model_name):
 	if model_name == "wiki":
@@ -22,34 +24,41 @@ def load_model(model_name):
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
 	return None
 
-wordnet_lemmatizer = WordNetLemmatizer()
-nltk.download('stopwords')
-QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
-t0 = time.time()
-Model = load_model("wiki")
-t1 = time.time()
-print("Loading the model took %f seconds" % ( t1 - t0))
-
 def compute_distance(points, centroid):
 	return np.sqrt(np.sum((points - centroid)**2, axis=1))
 
-# is_training_data - the test data contains only four columns. this is to handle that
-def read_file(input_file, is_training_data = True):
-	question_pairs = []
+def read_lines_from_file(input_file):
+	lines = []
 	with open(input_file, "rb") as file:
 		reader = csv.reader(file, delimiter = ",", )
 		next(reader, None)
 		for line in reader:
-			if is_training_data:
-				line[-2] = to_words(line[-2])
-				line[-3] = to_words(line[-3])
-				question_pair = QuestionPair(*line[1:])
-			else:
-				line[1] = to_words(line[1])
-				line[2] = to_words(line[2])
-				question_pair = QuestionPair(line[0], "", "", line[1], line[2], '')
-			question_pairs.append(question_pair)
+			lines.append(line)
+	return lines
+
+def convert_lines_to_question_pairs(lines, is_training_data):
+	question_pairs = []
+	for line in lines:
+		if is_training_data:
+			line[-2] = to_words(line[-2])
+			line[-3] = to_words(line[-3])
+			question_pair = QuestionPair(*line[1:])
+		else:
+			line[1] = to_words(line[1])
+			line[2] = to_words(line[2])
+			question_pair = QuestionPair(line[0], "", "", line[1], line[2], '')
+		question_pairs.append(question_pair)
 	return question_pairs
+
+# is_training_data - the test data contains only four columns. this is to handle that
+def read_file(input_file, is_training_data = True):
+	lines = read_lines_from_file(input_file)
+	return convert_lines_to_question_pairs(lines,is_training_data)
+
+def generate_training_sample(file_name, num_records,is_training_data=True):
+	lines = np.array(read_lines_from_file(file_name))
+	sampled_lines = lines[np.random.randint(len(lines), size = num_records), :]
+	return convert_lines_to_question_pairs(sampled_lines.tolist(),is_training_data)
 
 def to_words(sent):
 	# remove non alphanumeric characters except period
@@ -61,23 +70,23 @@ def to_words(sent):
 		words = [wordnet_lemmatizer.lemmatize(x) for x in words if x not in stopwords.words('english')]
 	return words
 
-def vec(word):
-	return [] if word not in Model.vocab else Model[word]
+def vec(word, model):
+	return [] if word not in model.vocab else model[word]
 
 def distance_to_similarity(distance_value):
 	return 1.0/(1+distance_value)
 
-def sentence2vec(words_in_sentence):
-	array_of_vectors = map(vec, words_in_sentence)
+def sentence2vec(words_in_sentence, model):
+	array_of_vectors = map(lambda (x): vec(x, model), words_in_sentence)
 	filtered = np.array([x for x in array_of_vectors if len(x) != 0])
 	return [] if len(filtered) == 0 else filtered.mean(axis = 0)
 
-def generate_scores(question_pairs):
+def generate_scores(question_pairs, model):
 	scores = []
 	for ind, question_pair in enumerate(question_pairs):
-		v1 = sentence2vec(question_pair.question_1)
-		v2 = sentence2vec(question_pair.question_2)
-		wmd_dist = Model.wmdistance(question_pair.question_1, question_pair.question_2)
+		v1 = sentence2vec(question_pair.question_1, model)
+		v2 = sentence2vec(question_pair.question_2, model)
+		wmd_dist = model.wmdistance(question_pair.question_1, question_pair.question_2)
 		if len(v1) == 0 or len(v2) == 0:
 			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
 		else:
@@ -119,11 +128,18 @@ def run_on_test_data(test_file_name, best_threshold):
 		print("%s,%s"%(question.id, predicted_classes[ind]))
 
 def main():
+	wordnet_lemmatizer = WordNetLemmatizer()
+	nltk.download('stopwords')
+	QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
+	t0 = time.time()
+	Model = load_model("wiki")
+	t1 = time.time()
+	print("Loading the model took %f seconds" % ( t1 - t0))
 	t0 = time.time()
 	question_pairs = read_file("data/train_cleaned.csv")
 	t1 = time.time()
 	print("Loading the training sample took %f seconds" % ( t1 - t0))
-	scores=generate_scores(question_pairs)
+	scores=generate_scores(question_pairs, Model)
 	print_scores(scores)
 	true_classes = [ x.is_duplicate for x in question_pairs]
 	cosine_scores = [ x[2] for x in scores]

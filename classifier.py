@@ -20,19 +20,19 @@ def fmeasure(y_true, y_pred):
 
 def main():
 	# Generate dummy data
-	data = read_file("data/combined_scores.csv")
-	x_train = data[:, 3:]
-	y_train = data[:, 2]
+	data = read_file("sample_10000.csv")
+	x_train = data[:, 2:]
+	y_train = data[:, 1]
 	
 	model = Sequential()
-	model.add(Dense(35, input_dim=8, activation='apl'))
+	model.add(Dense(35, input_dim=8, activation='relu'))
 	model.add(Dense(1, activation='sigmoid'))
 
 	model.compile(loss='binary_crossentropy',
 	              optimizer='rmsprop',
 	              metrics=['accuracy'])
 
-	model.fit(x_train, y_train, epochs=20, validation_split = 0.1)
+	model.fit(x_train, y_train, epochs=20, validation_split = 0.33)
 	# score = model.evaluate(x_test, y_test, batch_size=128)
 	# print score
 
