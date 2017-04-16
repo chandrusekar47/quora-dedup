@@ -87,8 +87,8 @@ def generate_scores(question_pairs, model):
 		v1 = sentence2vec(question_pair.question_1, model)
 		v2 = sentence2vec(question_pair.question_2, model)
 		#to compute number of common words
-		a = set(str(question_pair.question_1).lower().split())
-		b = set(str(question_pair.question_2).lower().split())
+		a = set(question_pair.question_1.lower().split())
+		b = set(question_pair.question_2.lower().split())
 		common_words = len(a.intersection(b))
 		wmd_dist = model.wmdistance(question_pair.question_1, question_pair.question_2)
 		if len(v1) == 0 or len(v2) == 0:
