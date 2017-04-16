@@ -21,11 +21,12 @@ def fmeasure(y_true, y_pred):
 def main():
 	# Generate dummy data
 	data = read_file("data/sample_10000.csv")
-	x_train = data[:, 2:]
+	input_features = [2,4,5,6,8,9]
+	x_train = data[:, input_features]
 	y_train = data[:, 1]
 
 	model = Sequential()
-	model.add(Dense(35, input_dim=8, activation='relu'))
+	model.add(Dense(15, input_dim=6, activation='relu'))
 	model.add(Dense(1, activation='sigmoid'))
 
 	model.compile(loss='binary_crossentropy',
