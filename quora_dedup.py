@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import time
 import editdistance
+from fuzzywuzzy import fuzz
 
 DEBUG = False
 MODEL_USED = "wiki" # "google"
@@ -105,6 +106,9 @@ def compute_difference_length(l1,l2):
 def compute_levenstein_score(s1,s2): #questions as strings
 	return int(editdistance.eval(s1,s2))
 
+def compute_partial_token_ratio(s1,s2):
+	return fuzz.partial_ratio(s1,s2)
+
 def generate_scores(question_pairs, model):
 	scores = []
 	for ind, question_pair in enumerate(question_pairs):
@@ -122,7 +126,7 @@ def generate_scores(question_pairs, model):
 		q2_num_of_words = compute_num_words(q2)	
 		wmd_dist = compute_word_movers_dist(q1,q2,model)
 		#compute levenstein distance.. need q's as strings for that!
-
+		#compute fuzzy partial token ratio
 		if len(v1) == 0 or len(v2) == 0:
 			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
 		else:
