@@ -18,12 +18,12 @@ DEBUG = False
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
 
-QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate")
+QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate", "q1_str", "q2_str")
 wordnet_lemmatizer = WordNetLemmatizer()
 
 def load_model(model_name):
 	if model_name == "wiki":
-		return KeyedVectors.load('/media/sri/9C34C32A34C305EC/Wikipedia corpus/en_1000_no_stem/en.model')
+		return KeyedVectors.load('data/wiki_en_1000_no_stem')
 	elif model_name == "google":
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
 	return None
@@ -41,13 +41,17 @@ def convert_lines_to_question_pairs(lines, is_training_data):
 	question_pairs = []
 	for line in lines:
 		if is_training_data:
-			line[-2] = to_words(line[-2])
-			line[-3] = to_words(line[-3])
-			question_pair = QuestionPair(*line[1:])
+			q1_str = line[-2]
+			q2_str = line[-3]
+			line[-2] = to_words(q1_str)
+			line[-3] = to_words(q2_str)
+			question_pair = QuestionPair(*(line[1:] + [q1_str,q2_str]))
 		else:
-			line[1] = to_words(line[1])
-			line[2] = to_words(line[2])
-			question_pair = QuestionPair(line[0], "", "", line[1], line[2], '')
+			q1_str = line[1]
+			q2_str = line[2]
+			line[1] = to_words(q1_str)
+			line[2] = to_words(q2_str)
+			question_pair = QuestionPair(line[0], "", "", line[1], line[2], '', q1_str, q2_str)
 		question_pairs.append(question_pair)
 	return question_pairs
 
@@ -136,10 +140,21 @@ def generate_scores(question_pairs, model):
 		q1_num_of_words = compute_num_words(q1)
 		q2_num_of_words = compute_num_words(q2)	
 		wmd_dist = compute_word_movers_dist(q1,q2,model)
+		levenstein = compute_levenstein_score(q1.q1_str, q2.q2_str)
+		partial_token_ratio = compute_partial_token_ratio(q1.q1_str, q2.q2_str)
 		#compute levenstein distance.. need q's as strings for that!
 		#compute fuzzy partial token ratio
 		if len(v1) == 0 or len(v2) == 0:
-			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0,0))
+			scores.append((question_pair.id,question_pair.is_duplicate,
+				q1_len,
+				q2_len,
+				diff_len,
+				q1_num_of_words,
+				q2_num_of_words,
+				common_words,
+				levenstein,
+				partial_token_ratio,
+				0,0,0,0))
 		else:
 			scores.append((question_pair.id,
 					question_pair.is_duplicate,
@@ -149,6 +164,8 @@ def generate_scores(question_pairs, model):
 					q1_num_of_words,
 					q2_num_of_words,
 					common_words,
+					levenstein,
+					partial_token_ratio,
 					((spatial.distance.cosine(v1, v2)-1)*-1),
 					distance_to_similarity(spatial.distance.euclidean(v1, v2)),
 					distance_to_similarity(spatial.distance.minkowski(v1, v2, 3)),

@@ -29,7 +29,7 @@ def train_model(training_file_name):
 	x_train = data[:, 2:]
 	y_train = data[:, 1]
 	model = Sequential()
-	model.add(Dense(35, input_dim=9, activation='relu'))
+	model.add(Dense(35, input_dim=16, activation='relu'))
 	model.add(Dense(1, activation='sigmoid'))
 	model.compile(loss='binary_crossentropy',
 	              optimizer='rmsprop',
