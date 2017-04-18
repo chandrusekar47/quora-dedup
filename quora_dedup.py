@@ -10,6 +10,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import time
+import editdistance
 
 DEBUG = False
 MODEL_USED = "wiki" # "google"
@@ -19,7 +20,7 @@ wordnet_lemmatizer = WordNetLemmatizer()
 
 def load_model(model_name):
 	if model_name == "wiki":
-		return KeyedVectors.load('data/wiki_en_1000_no_stem/en.model')
+		return KeyedVectors.load('/media/sri/9C34C32A34C305EC/Wikipedia corpus/en_1000_no_stem/en.model')
 	elif model_name == "google":
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
 	return None
@@ -81,16 +82,46 @@ def sentence2vec(words_in_sentence, model):
 	filtered = np.array([x for x in array_of_vectors if len(x) != 0])
 	return [] if len(filtered) == 0 else filtered.mean(axis = 0)
 
+def compute_num_common_words(q1,q2):
+	a = set(question_pair.question_1)
+	b = set(question_pair.question_2)
+	return len(a.intersection(b))
+
+def compute_num_words(q1):
+	return len(q)
+
+def compute_word_movers_dist(q1,q2,model):
+	return model.wmdistance(q1,q2)
+
+def compute_len_of_question(q):
+	total = 0
+	for x in q:
+		total = total + len(x)
+	return total
+
+def compute_difference_length(l1,l2):
+	return l1-l2
+
+def compute_levenstein_score(s1,s2): #questions as strings
+	return int(editdistance.eval(s1,s2))
+
 def generate_scores(question_pairs, model):
 	scores = []
 	for ind, question_pair in enumerate(question_pairs):
 		v1 = sentence2vec(question_pair.question_1, model)
 		v2 = sentence2vec(question_pair.question_2, model)
-		#to compute number of common words
-		a = set(question_pair.question_1.lower().split())
-		b = set(question_pair.question_2.lower().split())
-		common_words = len(a.intersection(b))
-		wmd_dist = model.wmdistance(question_pair.question_1, question_pair.question_2)
+		#questions as arrays of strings
+		q1 = question_pair.question_1
+		q2 = question_pair.question_2
+		
+		common_words = compute_num_common_words(q1,q2)
+		q1_len = compute_len_of_question(q1)
+		q2_len = compute_len_of_question(q2)
+		diff_len = compute_difference_length(q1_len,q2_len)
+		q1_num_of_words = compute_num_words(q1)
+		q2_num_of_words = compute_num_words(q2)	
+		wmd_dist = compute_word_movers_dist(q1,q2,model)
+
 		if len(v1) == 0 or len(v2) == 0:
 			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
 		else:
