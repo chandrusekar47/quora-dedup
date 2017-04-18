@@ -128,7 +128,7 @@ def generate_scores(question_pairs, model):
 		#compute levenstein distance.. need q's as strings for that!
 		#compute fuzzy partial token ratio
 		if len(v1) == 0 or len(v2) == 0:
-			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
+			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0,0))
 		else:
 			scores.append((question_pair.id,
 					question_pair.is_duplicate,

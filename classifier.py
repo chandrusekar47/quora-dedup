@@ -26,7 +26,7 @@ def main():
 	y_train = data[:, 1]
 
 	model = Sequential()
-	model.add(Dense(15, input_dim=6, activation='relu'))
+	model.add(Dense(15, input_dim=9, activation='relu'))
 	model.add(Dense(1, activation='sigmoid'))
 
 	model.compile(loss='binary_crossentropy',
