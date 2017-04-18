@@ -121,12 +121,18 @@ def generate_scores(question_pairs, model):
 		q1_num_of_words = compute_num_words(q1)
 		q2_num_of_words = compute_num_words(q2)	
 		wmd_dist = compute_word_movers_dist(q1,q2,model)
+		#compute levenstein distance.. need q's as strings for that!
 
 		if len(v1) == 0 or len(v2) == 0:
 			scores.append((question_pair.id,question_pair.is_duplicate, 0,0,0,0))
 		else:
 			scores.append((question_pair.id,
 					question_pair.is_duplicate,
+					q1_len,
+					q2_len,
+					diff_len,
+					q1_num_of_words,
+					q2_num_of_words,
 					common_words,
 					((spatial.distance.cosine(v1, v2)-1)*-1),
 					distance_to_similarity(spatial.distance.euclidean(v1, v2)),
