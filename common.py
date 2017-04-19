@@ -99,12 +99,12 @@ def sentence2vec(words_in_sentence, model):
 	return [] if len(filtered) == 0 else filtered.mean(axis = 0)
 
 def compute_num_common_words(q1,q2):
-	a = set(question_pair.question_1)
-	b = set(question_pair.question_2)
+	a = set(q1)
+	b = set(q2)
 	return len(a.intersection(b))
 
 def compute_num_words(q1):
-	return len(q)
+	return len(q1)
 
 def compute_word_movers_dist(q1,q2,model):
 	return model.wmdistance(q1,q2)
@@ -135,20 +135,20 @@ def generate_scores(question_pairs, model):
 		#questions as arrays of strings
 		q1 = question_pair.question_1
 		q2 = question_pair.question_2
-		
+
 		common_words = compute_num_common_words(q1,q2)
 		q1_len = compute_len_of_question(q1)
 		q2_len = compute_len_of_question(q2)
 		#ADDED THIS
-		q1_chars = compute_chars_without_spaces(q1.q1_str)
-		q2_chars = compute_chars_without_spaces(q2.q2_str)	
+		q1_chars = compute_chars_without_spaces(question_pair.q1_str)
+		q2_chars = compute_chars_without_spaces(question_pair.q2_str)
 
 		diff_len = compute_difference_length(q1_len,q2_len)
 		q1_num_of_words = compute_num_words(q1)
-		q2_num_of_words = compute_num_words(q2)	
+		q2_num_of_words = compute_num_words(q2)
 		wmd_dist = compute_word_movers_dist(q1,q2,model)
-		levenstein = compute_levenstein_score(q1.q1_str, q2.q2_str)
-		partial_token_ratio = compute_partial_token_ratio(q1.q1_str, q2.q2_str)
+		levenstein = compute_levenstein_score(question_pair.q1_str, question_pair.q2_str)
+		partial_token_ratio = compute_partial_token_ratio(question_pair.q1_str, question_pair.q2_str)
 		#compute levenstein distance.. need q's as strings for that!
 		#compute fuzzy partial token ratio
 		if len(v1) == 0 or len(v2) == 0:
