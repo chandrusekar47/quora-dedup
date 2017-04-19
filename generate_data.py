@@ -20,12 +20,12 @@ def print_combined_scores(wiki_scores, google_scores, file = sys.stdout):
 		float_vals = ",".join(map(lambda x: "{:0.4f}".format(x), wiki_score[2:] + google_scores[ind][12:]))
 		print("{},{},{}".format(wiki_score[0], wiki_score[1], float_vals), file = file)
 
-def main(input_file, output_file):
-	training_questions = common.read_file_as_questions(input_file)
-	train_output = open(output_file, "w")
+def main(input_file, output_file, is_training = True):
+	questions = common.read_file_as_questions(input_file, is_training)
+	output = open(output_file, "w")
 	wiki_model = common.load_model("wiki")
-	wiki_scores = common.generate_scores(training_questions, wiki_model)
+	wiki_scores = common.generate_scores(questions, wiki_model)
 	google_model = common.load_model("google")
-	google_scores = common.generate_scores(training_questions, google_model)
-	print_combined_scores(wiki_scores, google_scores, file = train_output)
-	train_output.close()
+	google_scores = common.generate_scores(questions, google_model)
+	print_combined_scores(wiki_scores, google_scores, file = output)
+	output.close()

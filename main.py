@@ -12,16 +12,16 @@ def main():
 	operation = cmdline_args[0]
 	if operation == "generate":
 		files = cmdline_args[1:]
-		if len(files) == 0:
-			print("usage python main.py generate <input_file_name1> <input_file_name2> ...")
+		if len(files) > 2 or len(files) == 0:
+			print("usage python main.py generate <training_file_csv> [<test_file_csv>]")
 			exit(-1)
 		for file in files:
 			if not os.path.isfile(file):
 				print(file + " not found")
 				exit(-1)
-		for file in files:
-			print("generating feature file for "+file)
-			generate_data.main(file, os.path.splitext(file)[0]+"_features.csv")
+		generate_data.main(files[0], os.path.splitext(files[0])[0]+"_features.csv")
+		if len(files) == 2:
+			generate_data.main(files[1], os.path.splitext(files[1])[0]+"_features.csv", is_training = False)
 	elif operation == "classify":
 		cmdline_args = cmdline_args[1:]
 		classifier_to_use = cmdline_args[0]
