@@ -18,7 +18,7 @@ DEBUG = False
 MODEL_USED = "wiki" # "google"
 REMOVE_STOP_WORDS = True
 
-QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate", "q1_str", "q2_str")
+QuestionPair = namedtuple("QuestionPair", "id, q1_id, q2_id, question_1, question_2, is_duplicate, q1_str, q2_str")
 wordnet_lemmatizer = WordNetLemmatizer()
 
 def load_model(model_name):

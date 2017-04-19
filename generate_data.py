@@ -11,7 +11,6 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import time
-import quora_dedup
 import sys
 import common
 
