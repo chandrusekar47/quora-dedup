@@ -23,7 +23,7 @@ wordnet_lemmatizer = WordNetLemmatizer()
 
 def load_model(model_name):
 	if model_name == "wiki":
-		return KeyedVectors.load('data/wiki_en_1000_no_stem')
+		return KeyedVectors.load('data/wiki_en_1000_no_stem/en.model')
 	elif model_name == "google":
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
 	return None
