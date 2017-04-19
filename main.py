@@ -1,6 +1,5 @@
 from __future__ import print_function
 import threshold_classifier
-import quora_dedup
 import generate_data
 import sys 
 import os.path
