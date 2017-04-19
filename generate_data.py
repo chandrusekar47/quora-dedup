@@ -16,9 +16,9 @@ import sys
 import common
 
 def print_combined_scores(wiki_scores, google_scores):
-	print(','.join(["id","is_duplicate","q1_len","q2_len","diff_len","q1_num_of_words","q2_num_of_words","num_common_words", "levenstein", "partial_ratio","cosine_wiki","euclidean_wiki","minkowski_wiki","wmd_wiki","cosine_google","euclidean_google","minkowski_google","wmd_google"]), file=file)
+	print(','.join(["id","is_duplicate","q1_len","q2_len","q1_chars","q2_chars","diff_len","q1_num_of_words","q2_num_of_words","num_common_words", "levenstein", "partial_ratio","cosine_wiki","euclidean_wiki","minkowski_wiki","wmd_wiki","cosine_google","euclidean_google","minkowski_google","wmd_google"]), file=file)
 	for ind, wiki_score in enumerate(wiki_scores):
-		float_vals = ",".join(map(lambda x: "{:0.4f}".format(x), [wiki_score[2:] + google_scores[ind][8:]]))
+		float_vals = ",".join(map(lambda x: "{:0.4f}".format(x), [wiki_score[2:] + google_scores[ind][10:]]))
 		print("{},{},{}".format(wiki_score[0], wiki_score[1], float_vals), file = file)
 
 def main(input_file, output_file):

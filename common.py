@@ -114,6 +114,9 @@ def compute_len_of_question(q):
 	for x in q:
 		total = total + len(x)
 	return total
+#ADDED THIS
+def compute_chars_without_spaces(s1):
+	return len(s1.replace(' ',''))
 
 def compute_difference_length(l1,l2):
 	return l1-l2
@@ -136,6 +139,10 @@ def generate_scores(question_pairs, model):
 		common_words = compute_num_common_words(q1,q2)
 		q1_len = compute_len_of_question(q1)
 		q2_len = compute_len_of_question(q2)
+		#ADDED THIS
+		q1_chars = compute_chars_without_spaces(q1.q1_str)
+		q2_chars = compute_chars_without_spaces(q2.q2_str)	
+
 		diff_len = compute_difference_length(q1_len,q2_len)
 		q1_num_of_words = compute_num_words(q1)
 		q2_num_of_words = compute_num_words(q2)	
@@ -148,6 +155,8 @@ def generate_scores(question_pairs, model):
 			scores.append((question_pair.id,question_pair.is_duplicate,
 				q1_len,
 				q2_len,
+				q1_chars,
+				q2_chars,
 				diff_len,
 				q1_num_of_words,
 				q2_num_of_words,
@@ -160,6 +169,8 @@ def generate_scores(question_pairs, model):
 					question_pair.is_duplicate,
 					q1_len,
 					q2_len,
+					q1_chars,
+					q2_chars,
 					diff_len,
 					q1_num_of_words,
 					q2_num_of_words,
