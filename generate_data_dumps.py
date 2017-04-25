@@ -11,7 +11,7 @@ import numpy as np
 import pickle
 import time
 import sys
-
+maxlen = 7
 def generate_training_sample(file_name, num_records,is_training_data=True):
     if num_records!=0:
         lines = np.array(common.read_lines_from_file(file_name))
@@ -21,7 +21,7 @@ def generate_training_sample(file_name, num_records,is_training_data=True):
     return common.convert_lines_to_question_pairs(sampled_lines.tolist(),is_training_data)
 
 def saveData(file_name,out_file_name):
-    training_questions = generate_training_sample(ile_name, 0)
+    training_questions = generate_training_sample(file_name, 0)
     pickle.dump( training_questions, open(out_file_name , "wb" ) )
 
 def sentence2vec(words_in_sentence, model):
