@@ -41,8 +41,8 @@ def convert_lines_to_question_pairs(lines, is_training_data):
 	question_pairs = []
 	for line in lines:
 		if is_training_data:
-			q1_str = line[-2]
-			q2_str = line[-3]
+			q1_str = line[-3]
+			q2_str = line[-2]
 			line[-2] = to_words(q1_str)
 			line[-3] = to_words(q2_str)
 			question_pair = QuestionPair(*(line[1:] + [q1_str,q2_str]))
