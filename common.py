@@ -51,7 +51,7 @@ def convert_lines_to_question_pairs(lines, is_training_data):
 			q2_str = line[2]
 			line[1] = to_words(q1_str)
 			line[2] = to_words(q2_str)
-			question_pair = QuestionPair(line[0], "", "", line[1], line[2], '', q1_str, q2_str)
+			question_pair = QuestionPair(line[0], "", "", line[1], line[2], '0', q1_str, q2_str)
 		question_pairs.append(question_pair)
 	return question_pairs
 
