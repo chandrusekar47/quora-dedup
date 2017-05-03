@@ -13,6 +13,8 @@ from nltk.stem import WordNetLemmatizer
 import time
 import editdistance
 from fuzzywuzzy import fuzz
+import pickle
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 DEBUG = False
 MODEL_USED = "wiki" # "google"
@@ -26,7 +28,16 @@ def load_model(model_name):
 		return KeyedVectors.load('data/wiki_en_1000_no_stem/en.model')
 	elif model_name == "google":
 		return KeyedVectors.load_word2vec_format('data/google-vec.bin', binary = True)
+	elif model_name == "quora":
+		return KeyedVectors.load_word2vec_format('data/quora_embeddings.bin', binary = True)
 	return None
+
+def load_word_embeddings():
+	(embeddings, headers) = read_lines_from_file('data/quora_embeddings.csv')
+	wordvec_map = {}
+	for row in embeddings:
+		wordvec_map[row[0]] = np.array(row[1:]).astype('float')
+	return wordvec_map
 
 def read_lines_from_file(input_file):
 	lines = []
@@ -59,6 +70,9 @@ def convert_lines_to_question_pairs(lines, is_training_data):
 def read_file_as_questions(input_file, is_training_data = True):
 	lines = read_lines_from_file(input_file)
 	return convert_lines_to_question_pairs(lines,is_training_data)
+
+def read_qp_dump(pickle_qp_dump):
+	return pickle.load(open(pickle_qp_dump, 'rb'))
 
 def read_file(input_file):
 	records = []
@@ -93,10 +107,14 @@ def vec(word, model):
 def distance_to_similarity(distance_value):
 	return 1.0/(1+distance_value)
 
-def sentence2vec(words_in_sentence, model):
-	array_of_vectors = map(lambda (x): vec(x, model), words_in_sentence)
-	filtered = np.array([x for x in array_of_vectors if len(x) != 0])
-	return [] if len(filtered) == 0 else filtered.mean(axis = 0)
+def sentence2vec(words_in_sentence, model, vectorizer):
+	word_vectors_array = []
+	for word in words_in_sentence:
+		if word in model.vocab:
+			if vectorizer.vocabulary_.has_key(word):
+				weights_of_word = vectorizer.idf_[vectorizer.vocabulary_[word]]
+				word_vectors_array.append(weights_of_word * model[word])
+	return [] if len(word_vectors_array) == 0 else np.mean(word_vectors_array, axis = 0)
 
 def compute_num_common_words(q1,q2):
 	a = set(q1)
@@ -129,9 +147,10 @@ def compute_partial_token_ratio(s1,s2):
 
 def generate_scores(question_pairs, model):
 	scores = []
+	vectorizer = get_tfidf_vectorizer()
 	for ind, question_pair in enumerate(question_pairs):
-		v1 = sentence2vec(question_pair.question_1, model)
-		v2 = sentence2vec(question_pair.question_2, model)
+		v1 = sentence2vec(question_pair.question_1, model, vectorizer)
+		v2 = sentence2vec(question_pair.question_2, model, vectorizer)
 		#questions as arrays of strings
 		q1 = question_pair.question_1
 		q2 = question_pair.question_2
@@ -182,3 +201,19 @@ def generate_scores(question_pairs, model):
 					distance_to_similarity(spatial.distance.minkowski(v1, v2, 3)),
 					distance_to_similarity(wmd_dist)))
 	return scores
+
+def get_tfidf_vectorizer():
+	return pickle.load(open('models/tfidf_vectorizer.p', 'rb'))
+
+def save_tfidf_vectorizer(training_data):
+	vectorizer = TfidfVectorizer(analyzer = "word", 
+                    tokenizer = nltk.word_tokenize, 
+                    preprocessor = None, 
+                    stop_words = set(stopwords.words('english')), 
+                    max_features = 10000, 
+                    lowercase = True)
+	vectorizer.fit(np.concatenate((training_data[:, -3], training_data[:, -2])))
+	pickle.dump(vectorizer, open('models/tfidf_vectorizer.p', 'wb'))
+	transformed_question_1 = vectorizer.transform(training_data[:, -3])
+	transformed_question_2 = vectorizer.transform(training_data[:, -2])
+	return (transformed_question_1, transformed_question_2)

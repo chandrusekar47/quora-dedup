@@ -3,6 +3,8 @@ import threshold_classifier
 import generate_data
 import sys 
 import os.path
+import common
+import numpy as np
 
 def main():
 	cmdline_args = sys.argv[1:]
@@ -54,3 +56,11 @@ def main():
 
 if __name__ == '__main__':
 	main()
+	# all_data = np.array(common.read_lines_from_file('data/train_sample.csv'))
+	# transformed_before_saving = common.save_tfidf_vectorizer(all_data)
+	# vectorizer = common.get_tfidf_vectorizer()
+	# transformed_question_1 = vectorizer.transform(all_data[:, -3]).todense()
+	# transformed_one_after = np.zeros(transformed_question_1.shape)
+	# for ind, x in enumerate(all_data[:, -3]):
+	# 	transformed_one_after[ind] = vectorizer.transform([x]).todense()
+	# print(np.allclose(transformed_question_1, transformed_one_after))
